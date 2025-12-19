@@ -3,10 +3,6 @@ require("dotenv").config();
 
 const express = require("express");
 const mongoose = require("mongoose");
-
-// Import model
-const User = require("./models/User");
-
 const app = express();
 
 // Middleware parse JSON
