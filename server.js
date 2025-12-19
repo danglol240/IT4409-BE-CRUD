@@ -5,6 +5,15 @@ const express = require("express");
 const mongoose = require("mongoose");
 const app = express();
 
+const cors = require("cors");
+
+app.use(cors({
+  origin: "https://it4409-fe-crud.web.app"
+}));
+
+app.use(express.json());
+
+
 // Middleware parse JSON
 app.use(express.json());
 
