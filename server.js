@@ -1,4 +1,31 @@
-//API POST - Tạo người dùng
+// server.js
+require("dotenv").config();
+
+const express = require("express");
+const mongoose = require("mongoose");
+
+// Import model
+const User = require("./models/User");
+
+const app = express();
+
+// Middleware parse JSON
+app.use(express.json());
+
+// =====================
+// KẾT NỐI MONGODB
+// =====================
+mongoose
+  .connect(process.env.MONGO_URI)
+  .then(() => console.log("✅ Kết nối MongoDB thành công"))
+  .catch((err) => {
+    console.error("❌ Lỗi kết nối MongoDB:", err);
+    process.exit(1);
+  });
+
+// =====================
+// API POST - Tạo người dùng
+// =====================
 app.post("/api/users", async (req, res) => {
   try {
     const { name, age, email, address } = req.body;
@@ -20,14 +47,16 @@ app.post("/api/users", async (req, res) => {
 
     res.status(201).json({
       message: "Tạo người dùng thành công",
-      data: newUser
+      data: newUser,
     });
   } catch (err) {
     res.status(400).json({ error: err.message });
   }
 });
 
-//API PUT - Cập nhật người dùng
+// =====================
+// API PUT - Cập nhật người dùng
+// =====================
 app.put("/api/users/:id", async (req, res) => {
   try {
     const { age, email } = req.body;
@@ -39,7 +68,10 @@ app.put("/api/users/:id", async (req, res) => {
 
     // Kiểm tra email duy nhất (trừ chính bản ghi đang cập nhật)
     if (email) {
-      const existingUser = await User.findOne({ email, _id: { $ne: req.params.id } });
+      const existingUser = await User.findOne({
+        email,
+        _id: { $ne: req.params.id },
+      });
       if (existingUser) {
         return res.status(400).json({ error: "Email đã tồn tại trong hệ thống" });
       }
@@ -57,9 +89,18 @@ app.put("/api/users/:id", async (req, res) => {
 
     res.json({
       message: "Cập nhật thành công",
-      data: updatedUser
+      data: updatedUser,
     });
   } catch (err) {
     res.status(400).json({ error: err.message });
   }
+});
+
+// =====================
+// KHỞI ĐỘNG SERVER
+// =====================
+const PORT = process.env.PORT || 3000;
+
+app.listen(PORT, () => {
+  console.log(`🚀 Server đang chạy tại http://localhost:${PORT}`);
 });
