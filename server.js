@@ -101,6 +101,39 @@ app.put("/api/users/:id", async (req, res) => {
   }
 });
 
+app.get("/api/users", async (req, res) => {
+  try {
+    const page = Number(req.query.page) || 1;
+    const limit = Number(req.query.limit) || 5;
+    const search = req.query.search || "";
+
+    const query = search
+      ? {
+          $or: [
+            { name: { $regex: search, $options: "i" } },
+            { email: { $regex: search, $options: "i" } },
+            { address: { $regex: search, $options: "i" } }
+          ]
+        }
+      : {};
+
+    const total = await User.countDocuments(query);
+    const users = await User.find(query)
+      .skip((page - 1) * limit)
+      .limit(limit);
+
+    res.json({
+      data: users,
+      total,
+      totalPages: Math.ceil(total / limit),
+      page,
+      limit
+    });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 // =====================
 // KHỞI ĐỘNG SERVER
 // =====================
